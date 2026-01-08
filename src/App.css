@@ -1,0 +1,184 @@
+/* 🚀 ResQLink v2.0 - OPTIMIZED App Layout + Theme (2026 Standards) */
+.app-container {
+  min-height: 100dvh; /* 🔄 Dynamic viewport height */
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ✨ Glassmorphism accent */
+.app-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.4), transparent);
+  z-index: 50;
+  pointer-events: none;
+}
+
+.main-content {
+  flex: 1;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  max-width: min(1400px, 100vw - 2rem);
+  margin: 0 auto;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  isolation: isolate; /* 🛡️ Compositing layer */
+}
+
+/* 🚀 ENHANCED RESPONSIVE GRID */
+.main-content > .grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(360px, 28vw, 420px), 1fr));
+  gap: clamp(1.75rem, 4vw, 2.5rem);
+  width: 100%;
+  max-width: 100%;
+}
+
+/* 🎬 SMOOTH PAGE TRANSITIONS */
+.main-content > *:not(.grid-layout) {
+  animation: slideUpFadeIn 0.5s cubic-bezier(0.34, 0.16, 0.4, 1);
+}
+
+/* 🎨 UPGRADED ANIMATION */
+@keyframes slideUpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(40px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 📱 ULTRA RESPONSIVE BREAKPOINTS */
+@media (max-width: 1200px) {
+  .main-content > .grid-layout {
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: clamp(1.5rem, 3vw, 2rem);
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: clamp(1rem, 3vw, 1.75rem) clamp(0.75rem, 3vw, 1.25rem);
+  }
+  
+  .main-content > .grid-layout {
+    grid-template-columns: 1fr;
+    gap: clamp(1.25rem, 3vw, 1.75rem);
+  }
+  
+  #root {
+    padding: 0 !important;
+    margin: 0;
+    width: 100dvw;
+    overflow-x: hidden;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 1rem 0.875rem;
+  }
+  
+  .main-content > .grid-layout {
+    gap: 1.25rem;
+  }
+}
+
+/* 🌐 ROOT + VITE OPTIMIZATION */
+#root {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 !important;
+  width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
+  font-feature-settings: 'rlig' 1, 'calt' 1; /* Typography enhancement */
+}
+
+/* 🗑️ CLEANUP + HIDE DEV TOOLS */
+.logo, .read-the-docs, [class*="logo-spin"], [class*="vite"], .vite-logo {
+  display: none !important;
+}
+
+/* 📱 PERFECT MOBILE VIEWPORT */
+@supports (padding: max(0px)) {
+  #root {
+    padding-inline: max(0px, env(safe-area-inset-left));
+  }
+}
+
+/* 🎯 PERFECT BUTTON SPACING */
+.main-content [type="submit"],
+.main-content .btn,
+.main-content button:not([class*="icon"]) {
+  margin-top: clamp(1rem, 2.5vw, 1.25rem) !important;
+  margin-bottom: 0.5rem !important;
+  margin-inline: 0.25rem !important;
+}
+
+/* 🛡️ ENHANCED CARD SYSTEM */
+.main-content .card {
+  width: 100%;
+  max-width: 100%;
+  min-height: clamp(320px, 40vh, 400px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.25rem, 2vw, 1.75rem);
+  position: relative;
+}
+
+/* 🎨 SUBTLE CARD HOVER */
+.main-content .card {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-content .card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25);
+}
+
+/* 🔍 FORM INPUT ENHANCEMENTS */
+.main-content input,
+.main-content select,
+.main-content textarea {
+  transition: all 0.2s ease;
+}
+
+.main-content input:focus,
+.main-content select:focus,
+.main-content textarea:focus {
+  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
+  transform: translateY(-1px);
+}
+
+/* 🎮 LOADING STATES */
+.loading {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* 🎯 PRINT OPTIMIZATION */
+@media print {
+  .app-container, #root {
+    background: white !important;
+  }
+  .main-content {
+    padding: 1rem !important;
+  }
+}

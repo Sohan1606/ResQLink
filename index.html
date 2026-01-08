@@ -1,13 +1,112 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
   <head>
+    <!-- Essential Meta Tags -->
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>npm</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    
+    <!-- SEO & Social Meta -->
+    <title>ResqLink - Real-time Incident Reporting</title>
+    <meta name="description" content="Report & track incidents in real-time. Emergency response platform for communities." />
+    <meta name="keywords" content="emergency, incident, reporting, real-time, safety, community, rescue" />
+    <meta name="author" content="ResqLink Team" />
+    <meta name="theme-color" content="#ef4444" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="ResqLink - Real-time Incident Reporting" />
+    <meta property="og:description" content="Report & track incidents in real-time. Emergency response platform for communities." />
+    <meta property="og:image" content="/og-image.jpg" />
+    <meta property="og:url" content="https://resql.ink" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content="ResqLink - Real-time Incident Reporting" />
+    <meta property="twitter:description" content="Report & track incidents in real-time." />
+    <meta property="twitter:image" content="/og-image.jpg" />
+    
+    <!-- PWA Manifest & Icons -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#ef4444" />
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="/fonts/inter.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/src/main.jsx" as="script" />
+    
+    <!-- DNS Prefetch & Preconnect -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://maps.googleapis.com" />
+    <link rel="dns-prefetch" href="//api.resqlink.com" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://resql.ink/" />
+    
+    <!-- Vite Styles -->
+    <link rel="stylesheet" href="/src/index.css" />
+    
+    <!-- Performance Hints -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ResqLink" />
+    
+    <!-- Service Worker (uncomment for PWA) -->
+    <!-- <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+    </script> -->
   </head>
-  <body>
-    <div id="root"></div>
+  
+  <body class="bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 antialiased font-inter min-h-screen">
+    <noscript>
+      <div class="fixed inset-0 bg-red-600 bg-opacity-90 flex items-center justify-center z-50">
+        <div class="text-white text-center p-8 max-w-md mx-4">
+          <h1 class="text-3xl font-bold mb-4">⚠️ JavaScript Disabled</h1>
+          <p>ResqLink requires JavaScript to report and track incidents. Please enable JavaScript in your browser settings to continue.</p>
+        </div>
+      </div>
+    </noscript>
+    
+    <div id="root"><!-- App --></div>
+    
+    <!-- Vite Client -->
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Error Boundary Fallback -->
+    <script>
+      window.addEventListener('error', (e) => {
+        console.error('Global Error:', e.error);
+        document.body.innerHTML = `
+          <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50">
+            <div class="max-w-md mx-auto p-8 bg-white rounded-2xl shadow-2xl border border-red-100">
+              <div class="text-center">
+                <div class="w-24 h-24 mx-auto mb-6 bg-red-100 rounded-2xl flex items-center justify-center">
+                  <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.667-2.694-1.667-3.464 0L3.34 16c-.77 1.667.192 3 1.732 3z"></path>
+                  </svg>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-900 mb-2">Something went wrong</h1>
+                <p class="text-gray-600 mb-6">We're sorry, but an unexpected error occurred.</p>
+                <button onclick="window.location.reload()" 
+                        class="px-6 py-3 bg-red-600 text-white font-medium rounded-xl hover:bg-red-700 transition-all duration-200 shadow-lg">
+                  Try Again
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      
+      window.addEventListener('unhandledrejection', (e) => {
+        console.error('Unhandled Promise Rejection:', e.reason);
+      });
+    </script>
   </body>
 </html>
