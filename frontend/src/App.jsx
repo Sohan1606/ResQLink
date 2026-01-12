@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
 // Lazy load components for better performance
@@ -23,9 +23,10 @@ function ScrollToTop() {
   return null;
 }
 
-function AppContent() {
+function App() {
   return (
     <div className="app-container min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <ScrollToTop />
       <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
         <Navbar />
         <main className="main-content flex-1 pb-20 md:pb-8">
@@ -51,15 +52,6 @@ function AppContent() {
         }}
       />
     </div>
-  );
-}
-
-function App() {
-  return (
-    <Router>
-      <ScrollToTop />
-      <AppContent />
-    </Router>
   );
 }
 

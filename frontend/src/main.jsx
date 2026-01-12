@@ -71,14 +71,14 @@ const queryClient = new QueryClient({
 });
 
 // 🖥️ PWA Support
-if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(console.error);
   });
 }
 
 // 📊 Performance Monitoring
-if (process.env.NODE_ENV === 'production') {
+if (import.meta.env.PROD) {
   // Report to your analytics service
   window.addEventListener('error', (event) => {
     console.error('Global error:', event.error);
@@ -118,7 +118,7 @@ root.render(
   </StrictMode>
 );
 
-// 🧹 Cleanup on unmount (important for devtools)
-if (module.hot) {
-  module.hot.accept();
+// 🧹 HMR for development (Vite-specific)
+if (import.meta.hot) {
+  import.meta.hot.accept();
 }
