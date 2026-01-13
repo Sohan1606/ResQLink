@@ -1,14 +1,51 @@
-/* 🚀 ResQLink v2.0 - OPTIMIZED App Layout + Theme (2026 Standards) */
+/* ===========================
+   🚀 ResQLink v2.0 - GLOBAL RESET
+   =========================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #0f172a;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding: 0 !important;
+  margin: 0;
+}
+
+/* ===========================
+   🎨 APP CONTAINER
+   =========================== */
 .app-container {
-  min-height: 100dvh; /* 🔄 Dynamic viewport height */
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
   overflow-x: hidden;
   position: relative;
+  width: 100%;
 }
 
-/* ✨ Glassmorphism accent */
+/* Glassmorphism accent */
 .app-container::before {
   content: '';
   position: fixed;
@@ -21,33 +58,136 @@
   pointer-events: none;
 }
 
+/* ===========================
+   🗂️ MAIN CONTENT
+   =========================== */
 .main-content {
   flex: 1;
-  padding: clamp(1.5rem, 4vw, 2.5rem);
-  max-width: min(1400px, 100vw - 2rem);
+  padding-top: 80px; /* Space for fixed navbar */
+  padding-left: clamp(1rem, 3vw, 2rem);
+  padding-right: clamp(1rem, 3vw, 2rem);
+  padding-bottom: clamp(1.5rem, 4vw, 2.5rem);
+  max-width: 1400px;
   margin: 0 auto;
   width: 100%;
   min-width: 0;
   box-sizing: border-box;
   overflow-x: hidden;
-  isolation: isolate; /* 🛡️ Compositing layer */
 }
 
-/* 🚀 ENHANCED RESPONSIVE GRID */
-.main-content > .grid-layout {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(clamp(360px, 28vw, 420px), 1fr));
-  gap: clamp(1.75rem, 4vw, 2.5rem);
+/* ===========================
+   📐 NAVBAR STYLES
+   =========================== */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   width: 100%;
-  max-width: 100%;
+  z-index: 1000;
+  transition: all 0.3s ease;
 }
 
-/* 🎬 SMOOTH PAGE TRANSITIONS */
-.main-content > *:not(.grid-layout) {
-  animation: slideUpFadeIn 0.5s cubic-bezier(0.34, 0.16, 0.4, 1);
+.navbar-default {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* 🎨 UPGRADED ANIMATION */
+.navbar-scrolled {
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.navbar-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.navbar-logo {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: white;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 0.2s;
+  white-space: nowrap;
+}
+
+.navbar-logo:hover {
+  transform: scale(1.05);
+}
+
+.navbar-logo span {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nav-desktop {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  position: relative;
+  white-space: nowrap;
+}
+
+.nav-link:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+}
+
+.nav-link-active {
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.15);
+  font-weight: 600;
+}
+
+.nav-link-active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50%;
+  height: 2px;
+  background: #3b82f6;
+  border-radius: 2px;
+}
+
+/* Mobile toggle hidden by default */
+.mobile-toggle {
+  display: none;
+}
+
+.mobile-menu {
+  display: none;
+}
+
+/* ===========================
+   🎬 ANIMATIONS
+   =========================== */
 @keyframes slideUpFadeIn {
   from {
     opacity: 0;
@@ -59,126 +199,288 @@
   }
 }
 
-/* 📱 ULTRA RESPONSIVE BREAKPOINTS */
-@media (max-width: 1200px) {
-  .main-content > .grid-layout {
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-    gap: clamp(1.5rem, 3vw, 2rem);
-  }
-}
-
-@media (max-width: 768px) {
-  .main-content {
-    padding: clamp(1rem, 3vw, 1.75rem) clamp(0.75rem, 3vw, 1.25rem);
-  }
-  
-  .main-content > .grid-layout {
-    grid-template-columns: 1fr;
-    gap: clamp(1.25rem, 3vw, 1.75rem);
-  }
-  
-  #root {
-    padding: 0 !important;
-    margin: 0;
-    width: 100dvw;
-    overflow-x: hidden;
-  }
-}
-
-@media (max-width: 480px) {
-  .main-content {
-    padding: 1rem 0.875rem;
-  }
-  
-  .main-content > .grid-layout {
-    gap: 1.25rem;
-  }
-}
-
-/* 🌐 ROOT + VITE OPTIMIZATION */
-#root {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 !important;
-  width: 100%;
-  overflow-x: hidden;
-  box-sizing: border-box;
-  font-feature-settings: 'rlig' 1, 'calt' 1; /* Typography enhancement */
-}
-
-/* 🗑️ CLEANUP + HIDE DEV TOOLS */
-.logo, .read-the-docs, [class*="logo-spin"], [class*="vite"], .vite-logo {
-  display: none !important;
-}
-
-/* 📱 PERFECT MOBILE VIEWPORT */
-@supports (padding: max(0px)) {
-  #root {
-    padding-inline: max(0px, env(safe-area-inset-left));
-  }
-}
-
-/* 🎯 PERFECT BUTTON SPACING */
-.main-content [type="submit"],
-.main-content .btn,
-.main-content button:not([class*="icon"]) {
-  margin-top: clamp(1rem, 2.5vw, 1.25rem) !important;
-  margin-bottom: 0.5rem !important;
-  margin-inline: 0.25rem !important;
-}
-
-/* 🛡️ ENHANCED CARD SYSTEM */
-.main-content .card {
-  width: 100%;
-  max-width: 100%;
-  min-height: clamp(320px, 40vh, 400px);
-  display: flex;
-  flex-direction: column;
-  gap: clamp(1.25rem, 2vw, 1.75rem);
-  position: relative;
-}
-
-/* 🎨 SUBTLE CARD HOVER */
-.main-content .card {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.main-content .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.25);
-}
-
-/* 🔍 FORM INPUT ENHANCEMENTS */
-.main-content input,
-.main-content select,
-.main-content textarea {
-  transition: all 0.2s ease;
-}
-
-.main-content input:focus,
-.main-content select:focus,
-.main-content textarea:focus {
-  outline: 2px solid rgba(59, 130, 246, 0.5);
-  outline-offset: 2px;
-  transform: translateY(-1px);
-}
-
-/* 🎮 LOADING STATES */
-.loading {
-  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.6; }
 }
 
-/* 🎯 PRINT OPTIMIZATION */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ===========================
+   🎯 BUTTON STYLES
+   =========================== */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+}
+
+/* ===========================
+   🛡️ CARD SYSTEM
+   =========================== */
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* ===========================
+   📱 RESPONSIVE BREAKPOINTS
+   =========================== */
+@media (max-width: 1024px) {
+  .navbar-container {
+    padding: 1rem 1.5rem;
+  }
+  
+  .nav-desktop {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Hide desktop nav, show mobile toggle */
+  .nav-desktop {
+    display: none;
+  }
+  
+  .mobile-toggle {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    z-index: 1001;
+  }
+  
+  .mobile-toggle span {
+    width: 25px;
+    height: 3px;
+    background: white;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+  }
+  
+  .mobile-toggle.open span:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px);
+  }
+  
+  .mobile-toggle.open span:nth-child(2) {
+    opacity: 0;
+  }
+  
+  .mobile-toggle.open span:nth-child(3) {
+    transform: rotate(-45deg) translate(6px, -6px);
+  }
+  
+  /* Mobile menu */
+  .mobile-menu {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 999;
+  }
+  
+  .mobile-menu-open {
+    pointer-events: all;
+  }
+  
+  .mobile-menu-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .mobile-menu-open .mobile-menu-overlay {
+    opacity: 1;
+  }
+  
+  .mobile-menu-content {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 280px;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.98);
+    backdrop-filter: blur(20px);
+    padding: 5rem 2rem 2rem;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+  }
+  
+  .mobile-menu-open .mobile-menu-content {
+    transform: translateX(0);
+  }
+  
+  .mobile-nav-link {
+    display: block;
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  
+  .mobile-menu-open .mobile-nav-link {
+    animation: slideIn 0.4s ease forwards;
+  }
+  
+  @keyframes slideIn {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  .mobile-nav-link:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+  
+  .mobile-nav-link-active {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+    font-weight: 600;
+  }
+  
+  /* Adjust main content for mobile */
+  .main-content {
+    padding: 80px 1rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-container {
+    padding: 0.875rem 1rem;
+  }
+  
+  .navbar-logo {
+    font-size: 1.5rem;
+  }
+  
+  .main-content {
+    padding: 75px 0.875rem 1.25rem;
+  }
+  
+  .mobile-menu-content {
+    width: 260px;
+  }
+}
+
+/* ===========================
+   🧹 CLEANUP VITE DEFAULTS
+   =========================== */
+.logo, 
+.read-the-docs, 
+[class*="logo-spin"], 
+[class*="vite"], 
+.vite-logo {
+  display: none !important;
+}
+
+/* ===========================
+   🎯 LOADING STATES
+   =========================== */
+.loading {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.loading-container {
+  padding: 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* ===========================
+   🖨️ PRINT OPTIMIZATION
+   =========================== */
 @media print {
-  .app-container, #root {
+  .app-container, 
+  #root {
     background: white !important;
   }
+  
   .main-content {
     padding: 1rem !important;
+  }
+  
+  .navbar,
+  .mobile-menu {
+    display: none !important;
   }
 }

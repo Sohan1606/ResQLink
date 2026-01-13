@@ -2,15 +2,16 @@ import React, { Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
-// Lazy load components for better performance
-const Navbar = React.lazy(() => import('./Navbar'));
+// Import Navbar directly (not lazy loaded)
+import Navbar from './Navbar';
+
+// Lazy load page components
 const Home = React.lazy(() => import('./Home'));
 const LiveMap = React.lazy(() => import('./LiveMap'));
 const Report = React.lazy(() => import('./Report'));
 const Dashboard = React.lazy(() => import('./Dashboard'));
 const Login = React.lazy(() => import('./Login'));
 
-// Styles
 import './App.css';
 
 function ScrollToTop() {
@@ -23,24 +24,55 @@ function ScrollToTop() {
   return null;
 }
 
+// Loading fallback component
+const LoadingScreen = () => (
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+    color: 'white',
+    fontSize: '1.5rem',
+    fontWeight: 600
+  }}>
+    <div style={{ textAlign: 'center' }}>
+      <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🚨</div>
+      <div>Loading ResQLink...</div>
+    </div>
+  </div>
+);
+
 function App() {
   return (
-    <div className="app-container min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="app-container">
       <ScrollToTop />
-      <Suspense fallback={<div className="flex items-center justify-center h-screen">Loading...</div>}>
-        <Navbar />
-        <main className="main-content flex-1 pb-20 md:pb-8">
+      <Navbar />
+      <main className="main-content">
+        <Suspense fallback={<LoadingScreen />}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/map" element={<LiveMap />} />
             <Route path="/report" element={<Report />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/login" element={<Login />} />
-            {/* Catch-all route for 404 */}
-            <Route path="*" element={<div className="flex flex-col items-center justify-center h-96 text-gray-500">404 - Page Not Found</div>} />
+            <Route path="*" element={
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '70vh',
+                color: '#64748b',
+                fontSize: '1.25rem'
+              }}>
+                <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🔍</div>
+                <div>404 - Page Not Found</div>
+              </div>
+            } />
           </Routes>
-        </main>
-      </Suspense>
+        </Suspense>
+      </main>
       <Toaster 
         position="top-right"
         toastOptions={{

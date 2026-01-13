@@ -94,7 +94,6 @@ const container = document.getElementById('root');
 const root = createRoot(container);
 
 root.render(
-  <StrictMode>
     <GlobalErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
@@ -115,7 +114,6 @@ root.render(
         </AuthProvider>
       </QueryClientProvider>
     </GlobalErrorBoundary>
-  </StrictMode>
 );
 
 // 🧹 HMR for development (Vite-specific)

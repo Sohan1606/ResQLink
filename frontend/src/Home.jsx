@@ -48,7 +48,8 @@ const Home = () => {
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
       position: 'relative',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      width: '100%'
     }}>
       {/* 🌟 Animated Background Particles */}
       <div className="particles" style={{
@@ -58,7 +59,8 @@ const Home = () => {
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
-        zIndex: 0
+        zIndex: 0,
+        overflow: 'hidden'
       }}>
         {[...Array(20)].map((_, i) => (
           <div key={i} className="particle" style={{
@@ -389,8 +391,8 @@ const Home = () => {
         </div>
       </motion.section>
 
-      {/* 🎨 Global Styles */}
-      <style jsx>{`
+      {/* 🎨 Global Styles - FIXED: Removed 'jsx' attribute */}
+      <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-20px); }
