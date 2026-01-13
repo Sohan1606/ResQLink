@@ -1,0 +1,338 @@
+/* ========================================
+   🚨 RESQLINK - PRODUCTION CSS v2.0 (IMPROVED)
+   ✅ Fixed: Removed invalid selectors (:has-text, :contains)
+   ✅ Fixed: Button spacing consistency (2.75rem gap)
+   ✅ Fixed: Mobile responsiveness enhanced
+   ✅ Added: Proper dark theme with reduced !important abuse
+   ✅ Added: Better glassmorphism with accessibility
+======================================== */
+
+/* 🧬 ROOT VARIABLES - ENHANCED */
+:root {
+  --primary: #0f172a;
+  --accent: #ef4444;
+  --accent-hover: #dc2626;
+  --secondary: #3b82f6;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --bg-dark: #1e293b;
+  --bg-darker: #0f172a;
+  --glass-bg: rgba(30, 41, 59, 0.85);
+  --glass-border: rgba(50, 65, 85, 0.6);
+  --text-light: #f8fafc;
+  --text-primary: #e2e8f0;
+  --text-dim: #94a3b8;
+  --border: #334155;
+  --shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  --shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.5);
+  --radius: 20px;
+  --spacing-lg: 2.75rem;
+  --spacing-md: 2rem;
+  --spacing-sm: 1.5rem;
+}
+
+/* 🛡️ GLOBAL RESET */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: linear-gradient(135deg, var(--primary) 0%, #1e1b4b 50%, var(--bg-dark) 100%);
+  color: var(--text-light);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* 🔥 ULTRA-CLEAN TITLE STYLING */
+h1, h2, h3, h4, h5, h6 {
+  color: transparent;
+  font-weight: 900;
+  font-size: clamp(1.75rem, 4.5vw, 3.25rem);
+  background: linear-gradient(135deg, #ffffff 0%, var(--text-light) 50%, var(--text-primary) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: 0 0 20px rgba(255,255,255,0.3);
+  margin-bottom: var(--spacing-lg);
+  padding: 1rem 0 0.75rem;
+  position: relative;
+}
+
+h1::after, h2::after, h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--secondary));
+  border-radius: 2px;
+}
+
+/* 🛡️ RESQ COMMAND CENTRE TITLES */
+h1.ResQTitle,
+h1:has(.ResQ), 
+h2:has(.Command),
+h3.command-centre {
+  background: linear-gradient(135deg, var(--accent), var(--secondary), var(--success));
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+/* 🚨 BULLETPROOF BUTTON SPACING SYSTEM */
+.btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin: var(--spacing-lg) 0;
+}
+
+.btn, 
+button[type="submit"], 
+.submit-btn,
+input[type="submit"] {
+  padding: clamp(1rem, 2.5vw, 1.25rem) clamp(1.5rem, 4vw, 2rem);
+  border: none;
+  border-radius: 14px;
+  font-weight: 600;
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: white;
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 56px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:hover, 
+button[type="submit"]:hover,
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  background: linear-gradient(135deg, var(--accent-hover), var(--accent));
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+/* 🛡️ PERFECT GLASSMORPHISM CARDS */
+.card,
+.report-form {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius);
+  padding: clamp(2rem, 5vw, 2.75rem);
+  box-shadow: var(--shadow);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  max-width: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* 🛡️ RESPONSIVE GRID */
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: var(--spacing-md);
+  width: 100%;
+}
+
+/* 🛡️ APP STRUCTURE */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding: clamp(2rem, 5vw, 2.75rem) 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.report-container {
+  min-height: calc(100vh - 120px);
+  max-width: 900px;
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 3rem) 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* 🛡️ FORM ELEMENTS */
+.report-form input,
+.report-form select,
+.report-form textarea {
+  padding: 1.25rem 1.5rem;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.08);
+  color: var(--text-light);
+  font-size: 1rem;
+  width: 100%;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.report-form input:focus,
+.report-form select:focus,
+.report-form textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: rgba(255,255,255,0.12);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+/* 🛡️ UTILITY CLASSES */
+.content-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  min-height: 0;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+/* 🔥 SMOOTH ANIMATIONS */
+@keyframes fadeInUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(30px) scale(0.95); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0) scale(1); 
+  }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.card,
+.report-form,
+.main-content > * {
+  animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.loading-skeleton {
+  background: linear-gradient(90deg, var(--bg-dark) 25%, #334155 50%, var(--bg-dark) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 12px;
+}
+
+/* 🛡️ CLEANUP */
+#root {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.logo, .read-the-docs, [class*="logo-spin"], [class*="vite"] {
+  display: none;
+}
+
+/* 🛡️ MOBILE PERFECTION */
+@media (max-width: 1200px) {
+  .grid-layout { 
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content { 
+    padding: 2rem 1.5rem; 
+  }
+  
+  .grid-layout { 
+    grid-template-columns: 1fr; 
+    gap: var(--spacing-sm); 
+  }
+  
+  .card, .report-form { 
+    padding: 2rem; 
+    gap: 1.75rem; 
+  }
+  
+  h1, h2, h3 { 
+    margin-bottom: clamp(2rem, 6vw, 2.5rem); 
+  }
+  
+  .btn { 
+    padding: 1.25rem 1.75rem; 
+    min-height: 60px; 
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content, .report-container { 
+    padding: 1.5rem 1rem; 
+  }
+  
+  .report-form { 
+    padding: 1.75rem; 
+  }
+  
+  h1, h2, h3 { 
+    margin-bottom: 2.25rem; 
+  }
+}
+
+/* 🛡️ ACCESSIBILITY IMPROVEMENTS */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 🛡️ PRINT STYLES */
+@media print {
+  .btn, button {
+    background: #ef4444 !important;
+    color: white !important;
+    border: 1px solid #dc2626 !important;
+  }
+  
+  .card, .report-form {
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+}
