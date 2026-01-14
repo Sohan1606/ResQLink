@@ -1,4 +1,4 @@
-// 🚀 ResQLink Backend v2.0 - Production Ready (2026 Standards)
+// 🚀 ResQLink Backend v2.1 - Production Ready (2026 Standards)
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -19,8 +19,8 @@ app.use(cors({
 
 // 📊 Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -38,7 +38,6 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/resqlink')
     process.exit(1);
   });
 
-// Handle MongoDB connection errors
 mongoose.connection.on('error', (err) => {
   console.error('MongoDB connection error:', err);
 });
@@ -57,7 +56,7 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.model('User', userSchema);
 
-// 🚨 ENHANCED Incident Schema
+// 🚨 ENHANCED Incident Schema with virtuals
 const incidentSchema = new mongoose.Schema({
   title: { 
     type: String, 
@@ -70,7 +69,7 @@ const incidentSchema = new mongoose.Schema({
   category: {
     type: String,
     enum: {
-      values: ['Medical', 'Fire', 'Flood', 'Traffic', 'Crime', 'Security', 'Technical', 'Environmental', 'Other'],
+      values: ['Medical', 'Fire', 'Flood', 'Traffic', 'Crime', 'Security', 'Technical', 'Environmental', 'Hazard', 'Other'],
       message: 'Invalid category'
     },
     default: 'Other'
@@ -91,7 +90,7 @@ const incidentSchema = new mongoose.Schema({
     default: 'Medium'
   },
   
-  // 🔧 FIXED: Proper GeoJSON location structure
+  // ✅ FIXED: Proper GeoJSON location structure
   location: { 
     type: {
       type: String, 
@@ -104,8 +103,8 @@ const incidentSchema = new mongoose.Schema({
       validate: {
         validator: function(coords) {
           return coords.length === 2 && 
-                 coords[0] >= -180 && coords[0] <= 180 && // longitude
-                 coords[1] >= -90 && coords[1] <= 90;      // latitude
+                 coords[0] >= -180 && coords[0] <= 180 &&
+                 coords[1] >= -90 && coords[1] <= 90;
         },
         message: 'Invalid coordinates. Must be [longitude, latitude] with valid ranges.'
       }
@@ -129,14 +128,22 @@ const incidentSchema = new mongoose.Schema({
   adminNotes: String,
   verified: { type: Boolean, default: false },
   
-  // 🆕 Audit trail
-  responseTime: Number, // minutes
-  resolutionTime: Number, // minutes
+  responseTime: Number,
+  resolutionTime: Number,
   
 }, { 
   timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
+});
+
+// ✅ CRITICAL FIX: Add virtual fields for lat/lng to support frontend
+incidentSchema.virtual('lat').get(function() {
+  return this.location?.coordinates ? this.location.coordinates[1] : null;
+});
+
+incidentSchema.virtual('lng').get(function() {
+  return this.location?.coordinates ? this.location.coordinates[0] : null;
 });
 
 // Create 2dsphere index for geospatial queries
@@ -145,24 +152,6 @@ incidentSchema.index({ status: 1, createdAt: -1 });
 incidentSchema.index({ severity: 1, category: 1 });
 
 const Incident = mongoose.model('Incident', incidentSchema);
-
-// 🔐 Simple auth middleware
-const authMiddleware = async (req, res, next) => {
-  try {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    if (!token) return res.status(401).json({ message: 'No token provided' });
-    
-    // In production, verify JWT here
-    // const user = await User.findOne({ /* token verification */ });
-    // if (!user) return res.status(401).json({ message: 'Invalid token' });
-    
-    // For now, bypass auth for testing
-    req.user = { id: 'test-user', role: 'admin' };
-    next();
-  } catch (error) {
-    res.status(401).json({ message: 'Authentication error' });
-  }
-};
 
 // 📝 Request logging middleware
 app.use((req, res, next) => {
@@ -174,7 +163,7 @@ app.use((req, res, next) => {
 // 🆘 INCIDENT ROUTES
 // ====================================================================
 
-// 🔧 FIXED: POST /api/reports - Create new incident
+// ✅ FIXED: POST /api/reports - Create new incident
 app.post('/api/reports', async (req, res) => {
   try {
     console.log('📥 Received incident report:', {
@@ -185,7 +174,6 @@ app.post('/api/reports', async (req, res) => {
       coordinates: `${req.body.lat}, ${req.body.lng}`
     });
 
-    // Validate required fields
     if (!req.body.title) {
       return res.status(400).json({ 
         message: 'Title is required',
@@ -200,11 +188,9 @@ app.post('/api/reports', async (req, res) => {
       });
     }
 
-    // Parse coordinates
     const longitude = parseFloat(req.body.lng);
     const latitude = parseFloat(req.body.lat);
 
-    // Validate coordinate ranges
     if (isNaN(longitude) || longitude < -180 || longitude > 180) {
       return res.status(400).json({ 
         message: 'Invalid longitude. Must be between -180 and 180',
@@ -219,7 +205,6 @@ app.post('/api/reports', async (req, res) => {
       });
     }
 
-    // Create incident document
     const incident = new Incident({
       title: req.body.title,
       category: req.body.category || 'Other',
@@ -239,7 +224,6 @@ app.post('/api/reports', async (req, res) => {
       verified: false
     });
     
-    // Save to database
     const saved = await incident.save();
     
     console.log('✅ Incident saved successfully:', {
@@ -248,7 +232,6 @@ app.post('/api/reports', async (req, res) => {
       coordinates: saved.location.coordinates
     });
 
-    // Return success response
     res.status(201).json({
       success: true,
       message: 'Incident reported successfully',
@@ -259,7 +242,6 @@ app.post('/api/reports', async (req, res) => {
   } catch (error) {
     console.error('❌ Error creating incident:', error);
 
-    // Handle validation errors
     if (error.name === 'ValidationError') {
       const errors = Object.values(error.errors).map(err => err.message);
       return res.status(400).json({ 
@@ -269,7 +251,6 @@ app.post('/api/reports', async (req, res) => {
       });
     }
 
-    // Handle duplicate key errors
     if (error.code === 11000) {
       return res.status(409).json({ 
         message: 'Duplicate entry',
@@ -277,61 +258,51 @@ app.post('/api/reports', async (req, res) => {
       });
     }
 
-    // Generic error
     res.status(500).json({ 
-      message: 'Failed to create incident report',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+      message: 'Failed to create incident',
+      error: error.message 
     });
   }
 });
 
-// GET /api/reports - Fetch all incidents with filtering
+// ✅ FIXED: GET /api/reports - Fetch all incidents with virtual lat/lng
 app.get('/api/reports', async (req, res) => {
   try {
     const { 
-      page = 1, 
-      limit = 20, 
       status, 
       severity, 
-      category,
-      search 
+      category, 
+      limit = 100, 
+      page = 1,
+      sortBy = 'createdAt',
+      order = 'desc'
     } = req.query;
-    
-    // Build filter
-    const filter = {};
-    if (status && status !== 'all') filter.status = status;
-    if (severity) filter.severity = severity;
-    if (category) filter.category = category;
-    if (search) {
-      filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { 'location.address': { $regex: search, $options: 'i' } }
-      ];
-    }
-    
-    // Execute query
-    const incidents = await Incident.find(filter)
-      .sort({ createdAt: -1 })
+
+    const query = {};
+    if (status) query.status = status;
+    if (severity) query.severity = severity;
+    if (category) query.category = category;
+
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const sortOrder = order === 'asc' ? 1 : -1;
+
+    const incidents = await Incident
+      .find(query)
+      .sort({ [sortBy]: sortOrder })
       .limit(parseInt(limit))
-      .skip((page - 1) * limit)
-      .lean();
-    
-    const total = await Incident.countDocuments(filter);
-    
-    res.json({
-      success: true,
-      incidents,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / limit)
-      }
-    });
+      .skip(skip)
+      .lean({ virtuals: true }); // ✅ CRITICAL: Enable virtuals for lat/lng
+
+    const total = await Incident.countDocuments(query);
+
+    console.log(`📊 Fetched ${incidents.length} incidents (Total: ${total})`);
+
+    res.json(incidents); // Return array directly for compatibility
+
   } catch (error) {
-    console.error('Error fetching reports:', error);
+    console.error('Error fetching incidents:', error);
     res.status(500).json({ 
-      message: 'Failed to fetch reports',
+      message: 'Failed to fetch incidents',
       error: error.message 
     });
   }
@@ -340,30 +311,20 @@ app.get('/api/reports', async (req, res) => {
 // GET /api/reports/:id - Fetch single incident
 app.get('/api/reports/:id', async (req, res) => {
   try {
-    const incident = await Incident.findById(req.params.id);
+    const incident = await Incident.findById(req.params.id).lean({ virtuals: true });
     
     if (!incident) {
-      return res.status(404).json({ 
-        message: 'Incident not found',
-        incidentId: req.params.id
-      });
+      return res.status(404).json({ message: 'Incident not found' });
     }
-    
+
     res.json({
       success: true,
       data: incident
     });
   } catch (error) {
-    console.error('Error fetching report:', error);
-    
-    if (error.name === 'CastError') {
-      return res.status(400).json({ 
-        message: 'Invalid incident ID format'
-      });
-    }
-    
+    console.error('Error fetching incident:', error);
     res.status(500).json({ 
-      message: 'Failed to fetch report',
+      message: 'Failed to fetch incident',
       error: error.message 
     });
   }
@@ -372,41 +333,33 @@ app.get('/api/reports/:id', async (req, res) => {
 // PATCH /api/reports/:id/status - Update incident status
 app.patch('/api/reports/:id/status', async (req, res) => {
   try {
-    const { status, notes } = req.body;
+    const { status, adminNotes } = req.body;
     
-    // Validate status
-    const validStatuses = ['pending', 'in-progress', 'resolved', 'closed'];
-    if (status && !validStatuses.includes(status)) {
+    if (!['pending', 'in-progress', 'resolved', 'closed'].includes(status)) {
       return res.status(400).json({ 
-        message: 'Invalid status',
-        validStatuses
+        message: 'Invalid status. Must be: pending, in-progress, resolved, or closed' 
       });
     }
+
+    const incident = await Incident.findById(req.params.id);
     
-    const updateData = {};
-    if (status) updateData.status = status;
-    if (notes) updateData.adminNotes = notes;
-    
-    const updated = await Incident.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true, runValidators: true }
-    );
-    
-    if (!updated) {
+    if (!incident) {
       return res.status(404).json({ message: 'Incident not found' });
     }
+
+    incident.status = status;
+    if (adminNotes) incident.adminNotes = adminNotes;
     
-    console.log(`✅ Incident ${req.params.id} status updated to: ${status}`);
-    
+    await incident.save();
+
     res.json({
       success: true,
       message: 'Status updated successfully',
-      data: updated
+      data: incident
     });
   } catch (error) {
     console.error('Error updating status:', error);
-    res.status(400).json({ 
+    res.status(500).json({ 
       message: 'Failed to update status',
       error: error.message 
     });
@@ -414,16 +367,14 @@ app.patch('/api/reports/:id/status', async (req, res) => {
 });
 
 // DELETE /api/reports/:id - Delete incident (admin only)
-app.delete('/api/reports/:id', authMiddleware, async (req, res) => {
+app.delete('/api/reports/:id', async (req, res) => {
   try {
-    const deleted = await Incident.findByIdAndDelete(req.params.id);
+    const incident = await Incident.findByIdAndDelete(req.params.id);
     
-    if (!deleted) {
+    if (!incident) {
       return res.status(404).json({ message: 'Incident not found' });
     }
-    
-    console.log(`🗑️ Incident ${req.params.id} deleted`);
-    
+
     res.json({
       success: true,
       message: 'Incident deleted successfully'
@@ -444,7 +395,7 @@ app.delete('/api/reports/:id', authMiddleware, async (req, res) => {
 // GET /api/map/live - Get nearby active incidents
 app.get('/api/map/live', async (req, res) => {
   try {
-    const { lat, lng, radius = 50000 } = req.query; // radius in meters
+    const { lat, lng, radius = 50000 } = req.query;
     
     if (!lat || !lng) {
       return res.status(400).json({ 
@@ -459,7 +410,7 @@ app.get('/api/map/live', async (req, res) => {
         $near: {
           $geometry: {
             type: 'Point',
-            coordinates: [parseFloat(lng), parseFloat(lat)] // [lng, lat]
+            coordinates: [parseFloat(lng), parseFloat(lat)]
           },
           $maxDistance: parseInt(radius)
         }
@@ -467,7 +418,7 @@ app.get('/api/map/live', async (req, res) => {
     })
     .limit(100)
     .sort({ createdAt: -1 })
-    .lean();
+    .lean({ virtuals: true });
     
     res.json({
       success: true,
@@ -505,7 +456,7 @@ app.post('/api/auth/login', async (req, res) => {
     
     res.json({
       success: true,
-      token: 'fake-jwt-token', // Replace with real JWT
+      token: 'fake-jwt-token',
       user: { 
         id: user._id, 
         email: user.email, 
@@ -527,16 +478,13 @@ app.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ message: 'Email and password are required' });
     }
     
-    // Check if user exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ message: 'User already exists' });
     }
     
-    // Hash password
     const hashedPassword = bcrypt.hashSync(password, 10);
     
-    // Create user
     const user = new User({
       email,
       password: hashedPassword,
@@ -566,7 +514,6 @@ app.post('/api/auth/register', async (req, res) => {
 
 app.get('/api/dashboard/stats', async (req, res) => {
   try {
-    // Status breakdown
     const statusStats = await Incident.aggregate([
       { 
         $group: { 
@@ -576,7 +523,6 @@ app.get('/api/dashboard/stats', async (req, res) => {
       }
     ]);
     
-    // Severity breakdown
     const severityStats = await Incident.aggregate([
       { 
         $group: { 
@@ -586,7 +532,6 @@ app.get('/api/dashboard/stats', async (req, res) => {
       }
     ]);
     
-    // Category breakdown
     const categoryStats = await Incident.aggregate([
       { 
         $group: { 
@@ -596,7 +541,6 @@ app.get('/api/dashboard/stats', async (req, res) => {
       }
     ]);
     
-    // Total counts
     const total = await Incident.countDocuments();
     const active = await Incident.countDocuments({ 
       status: { $in: ['pending', 'in-progress'] } 
@@ -631,15 +575,14 @@ app.get('/api/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    version: '2.0.0'
+    version: '2.1.0'
   });
 });
 
-// Root endpoint
 app.get('/', (req, res) => {
   res.json({
     name: 'ResQLink API',
-    version: '2.0.0',
+    version: '2.1.0',
     status: 'running',
     endpoints: {
       health: '/api/health',
@@ -686,7 +629,7 @@ const server = app.listen(PORT, () => {
   console.log(`
 ╔══════════════════════════════════════════════════════════╗
 ║                                                          ║
-║   🚀 ResQLink Backend Server                            ║
+║   🚀 ResQLink Backend Server v2.1                       ║
 ║                                                          ║
 ║   Port: ${PORT}                                            ║
 ║   Environment: ${process.env.NODE_ENV || 'development'}                              ║

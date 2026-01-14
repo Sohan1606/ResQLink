@@ -17,16 +17,70 @@ const Report = () => {
     lng: ''
   });
   const [touched, setTouched] = useState({});
-  const submitCountRef = useRef(0); // Track submit attempts for reference ID
+  const [geoLoading, setGeoLoading] = useState(false);
+  const submitCountRef = useRef(0);
 
-  const categories = ['Medical', 'Fire', 'Flood', 'Traffic', 'Crime', 'Other'];
+  const categories = ['Medical', 'Fire', 'Hazard', 'Traffic', 'Security', 'Flood', 'Other'];
   const severityLevels = ['Low', 'Medium', 'High', 'Critical'];
 
-  // Form validation - FIXED dependency issues
+  // ✅ FIXED: Reverse geocoding function using OpenStreetMap Nominatim
+  const reverseGeocode = useCallback(async (lat, lng) => {
+    try {
+      const response = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse`,
+        {
+          params: {
+            lat: lat,
+            lon: lng,
+            format: 'json',
+            addressdetails: 1
+          },
+          headers: {
+            'User-Agent': 'ResQLink-Emergency-App/1.0'
+          },
+          timeout: 5000
+        }
+      );
+
+      if (response.data && response.data.address) {
+        const addr = response.data.address;
+        
+        // Build human-readable address
+        const parts = [];
+        
+        // Add road/area
+        if (addr.road) parts.push(addr.road);
+        else if (addr.suburb) parts.push(addr.suburb);
+        else if (addr.neighbourhood) parts.push(addr.neighbourhood);
+        
+        // Add locality
+        if (addr.city) parts.push(addr.city);
+        else if (addr.town) parts.push(addr.town);
+        else if (addr.village) parts.push(addr.village);
+        
+        // Add state
+        if (addr.state) parts.push(addr.state);
+        
+        // Add country
+        if (addr.country) parts.push(addr.country);
+        
+        const readableLocation = parts.join(', ') || response.data.display_name;
+        
+        console.log('✅ Reverse geocoding success:', readableLocation);
+        return readableLocation;
+      }
+      
+      return null;
+    } catch (error) {
+      console.warn('⚠️ Reverse geocoding failed:', error.message);
+      return null;
+    }
+  }, []);
+
+  // Form validation
   const validateForm = useCallback((data) => {
     const newErrors = {};
 
-    // Title validation
     if (!data.title?.trim()) {
       newErrors.title = 'Incident title is required';
     } else if (data.title.length < 5) {
@@ -35,14 +89,12 @@ const Report = () => {
       newErrors.title = 'Title must be less than 100 characters';
     }
 
-    // Location validation
     if (!data.location?.trim()) {
       newErrors.location = 'Location is required';
     } else if (data.location.length < 3) {
       newErrors.location = 'Location must be at least 3 characters';
     }
 
-    // GPS coordinates validation
     if (data.lat && (isNaN(data.lat) || data.lat < -90 || data.lat > 90)) {
       newErrors.lat = 'Invalid latitude (-90 to 90)';
     }
@@ -50,7 +102,6 @@ const Report = () => {
       newErrors.lng = 'Invalid longitude (-180 to 180)';
     }
 
-    // Description validation
     if (data.description?.length > 500) {
       newErrors.description = 'Description must be less than 500 characters';
     }
@@ -58,12 +109,10 @@ const Report = () => {
     return newErrors;
   }, []);
 
-  // FIXED: Real-time validation with proper dependencies
   const handleChange = useCallback((field) => (e) => {
     const value = e.target.value;
     setFormData(prev => {
       const newData = { ...prev, [field]: value };
-      // Validate immediately on change
       const fieldErrors = validateForm(newData);
       setErrors(prevErrors => ({
         ...prevErrors,
@@ -74,24 +123,30 @@ const Report = () => {
     setTouched(prev => ({ ...prev, [field]: true }));
   }, [validateForm]);
 
-  // Handle GPS location
-  const getCurrentLocation = useCallback(() => {
+  // ✅ FIXED: Get GPS location with reverse geocoding
+  const getCurrentLocation = useCallback(async () => {
     if (!navigator.geolocation) {
-      setErrors(prev => ({ ...prev, location: 'Geolocation not supported by this browser.' }));
+      alert('Geolocation not supported by this browser.');
       return;
     }
 
-    setLoading(true);
+    setGeoLoading(true);
+    
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const newLat = position.coords.latitude.toFixed(6);
         const newLng = position.coords.longitude.toFixed(6);
+        
+        // Get human-readable address
+        const address = await reverseGeocode(newLat, newLng);
+        
         setFormData(prev => ({
           ...prev,
           lat: newLat,
           lng: newLng,
-          location: prev.location || `Lat: ${newLat}, Lng: ${newLng}`
+          location: address || `${newLat}, ${newLng}`
         }));
+        
         setErrors(prev => {
           const newErrors = { ...prev };
           delete newErrors.lat;
@@ -99,19 +154,27 @@ const Report = () => {
           delete newErrors.location;
           return newErrors;
         });
-        setLoading(false);
+        
+        setGeoLoading(false);
       },
-      (error) => {
-        console.warn('Geolocation error:', error.message);
+      async (error) => {
+        console.warn('Geolocation error:', error);
+        
         // Fallback to Kalyan coordinates
+        const fallbackLat = '19.2438';
+        const fallbackLng = '73.1350';
+        
+        const address = await reverseGeocode(fallbackLat, fallbackLng);
+        
         setFormData(prev => ({
           ...prev,
-          lat: '19.2438',
-          lng: '73.1350',
-          location: prev.location || 'Kalyan, Maharashtra (fallback)'
+          lat: fallbackLat,
+          lng: fallbackLng,
+          location: address || 'Kalyan, Maharashtra (fallback)'
         }));
-        setErrors(prev => ({ ...prev, location: 'Using fallback location (Kalyan area)' }));
-        setLoading(false);
+        
+        alert('Could not get your exact location. Using Kalyan area as fallback.');
+        setGeoLoading(false);
       },
       { 
         enableHighAccuracy: true,
@@ -119,8 +182,9 @@ const Report = () => {
         maximumAge: 60000 
       }
     );
-  }, []);
+  }, [reverseGeocode]);
 
+  // ✅ FIXED: Submit to correct endpoint with proper data structure
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -142,11 +206,18 @@ const Report = () => {
     const lng = formData.lng || (73.1350 + (Math.random() - 0.5) * 0.01).toFixed(6);
 
     try {
+      // ✅ FIXED: Post to /api/reports with correct data structure
       const response = await axios.post('http://localhost:5000/api/reports', {
-        ...formData,
-        lat,
-        lng,
-        timestamp: new Date().toISOString()
+        title: formData.title,
+        category: formData.category,
+        description: formData.description,
+        severity: formData.severity,
+        location: formData.location, // Human-readable address
+        lat: parseFloat(lat),
+        lng: parseFloat(lng),
+        reporterName: 'Anonymous',
+        reporterPhone: '',
+        reporterEmail: ''
       }, {
         timeout: 10000,
         headers: {
@@ -154,8 +225,11 @@ const Report = () => {
         }
       });
 
+      console.log('✅ Incident submitted successfully:', response.data);
+      
       setSuccess(true);
-      // Navigate after success with incident ID
+      
+      // Navigate to map after success
       setTimeout(() => {
         navigate('/map', { 
           state: { 
@@ -163,21 +237,22 @@ const Report = () => {
           } 
         });
       }, 2000);
-    } catch (error) {
-      console.error("Submission error:", error);
       
-      let errorMessage = "Failed to submit report. Please try again.";
+    } catch (error) {
+      console.error("❌ Submission error:", error);
+      
+      let errorMessage = "Failed to submit report";
       
       if (axios.isCancel(error)) {
         errorMessage = "Request was cancelled. Please try again.";
       } else if (error.code === 'ECONNABORTED') {
-        errorMessage = "Request timeout. Check your internet connection and try again.";
+        errorMessage = "Request timeout. Please check your connection and try again.";
       } else if (!error.response) {
-        errorMessage = "Backend server not responding. Ensure the backend is running on port 5000.";
+        errorMessage = "Backend server not responding. Start backend with: cd backend && npm start";
       } else if (error.response.status >= 500) {
-        errorMessage = "Server error. Please try again in a moment.";
+        errorMessage = "Server error. Please try again later.";
       } else if (error.response.status >= 400) {
-        errorMessage = error.response.data?.message || "Invalid data. Please check your input and try again.";
+        errorMessage = error.response.data?.message || "Invalid data. Please check your input.";
       }
 
       setErrors({ submit: errorMessage });
@@ -191,21 +266,18 @@ const Report = () => {
     return (
       <div className="success-screen min-h-screen bg-gradient-to-br from-emerald-50 to-blue-50 flex items-center justify-center p-4">
         <div className="success-card bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl max-w-md w-full p-8 text-center border border-white/50">
-          <div className="success-icon text-6xl mb-6 animate-bounce">✅</div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-4">
-            Incident Reported Successfully!
-          </h2>
-          <p className="text-gray-700 mb-8 text-lg leading-relaxed">
-            Response teams have been notified. Track status on the live map.
-          </p>
-          <div className="bg-emerald-50 p-4 rounded-2xl mb-8">
-            <p className="text-sm font-mono text-emerald-800 font-semibold">
-              Reference ID: <span className="bg-emerald-200 px-3 py-1 rounded-full">RESQ-{submitCountRef.current.toString().padStart(6, '0')}</span>
-            </p>
+          <div className="success-icon mb-6">
+            <div className="w-24 h-24 mx-auto bg-gradient-to-br from-emerald-400 to-green-600 rounded-full flex items-center justify-center shadow-2xl">
+              <span className="text-5xl">✅</span>
+            </div>
           </div>
-          <div className="space-y-4">
+          <h2 className="text-3xl font-black text-gray-900 mb-4">Alert Sent Successfully!</h2>
+          <p className="text-gray-600 text-lg mb-8">
+            Emergency response teams have been notified and are being dispatched to your location.
+          </p>
+          <div className="space-y-3">
             <button 
-              className="btn btn-primary w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-bold py-4 px-6 rounded-2xl shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-200" 
+              className="btn btn-primary w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-200" 
               onClick={() => navigate('/map')}
             >
               🗺️ View Live Map
@@ -327,15 +399,22 @@ const Report = () => {
               className={`flex-1 px-6 py-4 text-lg border-2 rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-200 shadow-sm ${
                 errors.location ? 'border-red-300 bg-red-50/50' : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
               }`}
-              disabled={loading}
+              disabled={loading || geoLoading}
             />
             <button
               type="button"
               className="btn btn-secondary flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={getCurrentLocation}
-              disabled={loading}
+              disabled={loading || geoLoading}
             >
-              📍 Get GPS
+              {geoLoading ? (
+                <>
+                  <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Getting...
+                </>
+              ) : (
+                <>📍 Get GPS</>
+              )}
             </button>
           </div>
           {errors.location && (
@@ -346,7 +425,7 @@ const Report = () => {
           )}
           {formData.lat && (
             <div className="gps-coords text-xs text-emerald-700 bg-emerald-100/80 px-4 py-2 rounded-xl border border-emerald-200 font-mono">
-              📍 {formData.lat}, {formData.lng}
+              📍 GPS: {formData.lat}, {formData.lng}
             </div>
           )}
         </div>

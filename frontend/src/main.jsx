@@ -114,6 +114,7 @@ root.render(
         </AuthProvider>
       </QueryClientProvider>
     </GlobalErrorBoundary>
+    
 );
 
 // 🧹 HMR for development (Vite-specific)
