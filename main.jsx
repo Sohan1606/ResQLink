@@ -1,9 +1,9 @@
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { StrictMode } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx';
-import './globals.css';
 import './index.css';
 import { AuthProvider } from './contexts/AuthContext.jsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -95,7 +95,6 @@ const container = document.getElementById('root');
 const root = createRoot(container);
 
 root.render(
-  <StrictMode>
     <GlobalErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
@@ -116,7 +115,7 @@ root.render(
         </AuthProvider>
       </QueryClientProvider>
     </GlobalErrorBoundary>
-  </StrictMode>
+    
 );
 
 // 🧹 HMR for development (Vite-specific)
